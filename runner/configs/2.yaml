@@ -1,0 +1,16 @@
+id: 2
+name: fp8
+description: Config 1 + FP8 weights and activations from fast/fp8.py (Elad).
+machine: g4-standard-48
+model: black-forest-labs/FLUX.1-Kontext-dev
+revision: 24e9dedc4ef646698dc8eb4e18ae2cec3c9fea0d
+dtype: bfloat16
+guidance_scale: 4.0
+seeds: [1, 2, 3, 4]
+backend: diffusers
+num_inference_steps: null
+text_embedding: cached
+compile: {mode: max-autotune-no-cudagraphs, fullgraph: false}
+fp8: {granularity: row}   # fast.fp8.apply: per-row weight scales, dynamic per-row activation scales
+loras:
+  - {path: InspirationSeedsPaper/InspirationSeeds, weight_name: inspiration_seeds.safetensors, weight: 1.0}

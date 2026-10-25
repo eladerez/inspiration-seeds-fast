@@ -1,0 +1,17 @@
+id: 4
+name: nunchaku-nvfp4-stepcache
+description: Config 3 + step caching (first-block cache / TeaCache) from fast/step_cache.py (Elad).
+machine: g4-standard-48
+model: black-forest-labs/FLUX.1-Kontext-dev
+revision: 24e9dedc4ef646698dc8eb4e18ae2cec3c9fea0d
+dtype: bfloat16
+guidance_scale: 4.0
+seeds: [1, 2, 3, 4]
+backend: nunchaku
+nunchaku_weights: nunchaku-tech/nunchaku-flux.1-kontext-dev/svdq-fp4_r32-flux.1-kontext-dev.safetensors
+num_inference_steps: null
+text_embedding: cached
+compile: null
+step_cache: {threshold: 0.12}   # fast.step_cache.apply(pipe, threshold=...); Nunchaku's default
+loras:
+  - {path: InspirationSeedsPaper/InspirationSeeds, weight_name: inspiration_seeds.safetensors, weight: 1.0}

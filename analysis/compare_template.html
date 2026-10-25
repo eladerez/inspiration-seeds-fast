@@ -1,0 +1,274 @@
+<title>Inspiration Seeds Pair Viewer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column; the image comparison sits right under the headline, charts and table follow. */
+:root {
+  --bg: #f4f5f7; --surface: #ffffff; --ink: #14171c; --ink-2: #545b66; --line: #dde1e7;
+  --accent: #2a78d6; --accent-soft: #e3edfa; --bar-base: #9aa2ad;
+  --display: "Newsreader", Georgia, "Times New Roman", serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111418; --surface: #191d23; --ink: #eceff3; --ink-2: #a3abb6; --line: #2c323b;
+  --accent: #3987e5; --accent-soft: #1b2b40; --bar-base: #7a8390; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #111418; --surface: #191d23; --ink: #eceff3; --ink-2: #a3abb6; --line: #2c323b;
+  --accent: #3987e5; --accent-soft: #1b2b40; --bar-base: #7a8390; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.6 var(--body); margin: 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 72px; }
+main { max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 52px; }
+section { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+h1, h2 { font-family: var(--display); font-weight: 600; line-height: 1.15; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 4.6vw, 2.9rem); letter-spacing: -0.01em; }
+h2 { font-size: 1.5rem; }
+p { margin: 0; max-width: 68ch; }
+.eyebrow { font: 500 0.74rem/1 var(--mono); text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); }
+.lede { font-size: 1.12rem; color: var(--ink-2); }
+.muted { color: var(--ink-2); }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.facts { display: flex; flex-wrap: wrap; gap: 10px 28px; padding-top: 6px; }
+.fact { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.fact b { font: 600 1.5rem/1.1 var(--mono); font-variant-numeric: tabular-nums; }
+.fact span { font-size: 0.86rem; color: var(--ink-2); }
+
+/* pair picker and comparison grid */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: 500 0.85rem/1 var(--body); color: var(--ink); background: var(--surface); border: 1px solid var(--line);
+  border-radius: 999px; padding: 8px 12px; cursor: pointer; }
+.chip small { color: var(--ink-2); font-size: 0.74rem; margin-left: 6px; }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.chip[aria-pressed="true"] small { color: #e7efff; }
+.chip:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.picker { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.picker select { font: 0.95rem var(--body); color: var(--ink); background: var(--surface); border: 1px solid var(--line);
+  border-radius: 6px; padding: 8px 10px; max-width: 100%; min-width: 0; flex: 1 1 260px; }
+.nav { font: 600 0.9rem/1 var(--body); color: var(--ink); background: var(--surface); border: 1px solid var(--line);
+  border-radius: 6px; padding: 9px 12px; cursor: pointer; }
+.nav:disabled { opacity: 0.4; cursor: default; }
+select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.loading img { opacity: 0.35; }
+.inputs { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+.inputs figure { width: 150px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+figure { margin: 0; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+figure img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 4px; display: block; background: var(--line); }
+figcaption { font-size: 0.84rem; line-height: 1.35; color: var(--ink-2); }
+figcaption b { color: var(--ink); font-weight: 600; }
+figure.base img { outline: 2px solid var(--bar-base); outline-offset: 2px; }
+.note { font-size: 0.86rem; color: var(--ink-2); }
+
+/* seeds view */
+.seedrow { display: grid; grid-template-columns: 150px repeat(4, minmax(0, 1fr)); gap: 10px; align-items: center; }
+.seedrow .who { font-size: 0.86rem; line-height: 1.35; }
+.seedrow .who b { display: block; font-weight: 600; }
+.seedrow img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 4px; display: block; }
+.seeds { display: flex; flex-direction: column; gap: 12px; }
+@media (max-width: 560px) { .seedrow { grid-template-columns: repeat(4, minmax(0, 1fr)); } .seedrow .who { grid-column: 1 / -1; } }
+
+/* charts */
+.charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 24px; }
+.panel.wide { grid-column: 1 / -1; }
+.panel.wide .chart { max-width: 760px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px; min-width: 0;
+  display: flex; flex-direction: column; gap: 8px; }
+.panel h3 { font: 600 0.95rem/1.3 var(--body); margin: 0; }
+.chart { width: 100%; height: auto; display: block; overflow: visible; }
+.chart .grid { stroke: var(--line); stroke-width: 1; }
+.chart .zero { stroke: var(--ink-2); stroke-width: 1; stroke-dasharray: 3 3; }
+.chart .tick { fill: var(--ink-2); font: 11px var(--mono); }
+.chart .lab { fill: var(--ink); font: 12px var(--body); }
+.chart .val { fill: var(--ink-2); font: 11px var(--mono); }
+.chart .bar { fill: var(--accent); }
+.chart .bar.base { fill: var(--bar-base); }
+.chart .ci { stroke: var(--ink-2); stroke-width: 2; stroke-linecap: round; }
+.chart .pt { fill: var(--surface); stroke: var(--accent); stroke-width: 2; }
+.chart .pt.sig { fill: var(--accent); }
+.chart [data-tip] { cursor: default; }
+.chart [data-tip]:hover { opacity: 0.8; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.82rem; color: var(--ink-2); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px;
+  border: 2px solid var(--accent); }
+.legend i.f { background: var(--accent); }
+.legend i.sq { border-radius: 2px; border: 0; }
+#tip { position: fixed; pointer-events: none; z-index: 20; max-width: 280px; background: var(--ink); color: var(--bg);
+  font: 12px/1.4 var(--body); padding: 6px 8px; border-radius: 4px; }
+
+/* table */
+.tw { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 500 0.72rem/1.3 var(--mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-2); }
+td.n, th.n { text-align: right; white-space: nowrap; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+td .sub { display: block; font-size: 0.78rem; color: var(--ink-2); }
+tr:last-child td { border-bottom: 0; }
+tr.hl td { background: var(--accent-soft); }
+ul.plain { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 8px; max-width: 72ch; }
+@media (prefers-reduced-motion: no-preference) { figure img { transition: opacity .15s; } }
+</style>
+
+<main>
+  <header style="display:flex;flex-direction:column;gap:14px">
+    <span class="eyebrow">Inspiration Seeds · speed vs creativity · 99 pairs × 4 seeds per config</span>
+    <h1>Inspiration Seeds, Faster</h1>
+    <p class="lede">Inspiration Seeds (FLUX.1 Kontext + a LoRA) blends two images into a new, non-literal object. We made it faster seven ways and checked what each speedup did to the blends: how creative they are (Gemini's description length, the paper's metric) and how different the four seeds of a pair stay (DreamSim).</p>
+    <div class="facts">
+      <div class="fact"><b class="num">7.5×</b><span>fastest: 20.91 → 2.77 s per image</span></div>
+      <div class="fact"><b class="num">−1.4 words</b><span>largest creativity change (of 51.5)</span></div>
+      <div class="fact"><b class="num">−6 to −9%</b><span>seed diversity with 8-step LoRAs</span></div>
+      <div class="fact"><b class="num">${{COST}}</b><span>cloud cost of these runs</span></div>
+    </div>
+  </header>
+
+  <section id="compare">
+    <span class="eyebrow">See for yourself</span>
+    <h2>The same pair and seed, every configuration</h2>
+    <p class="muted">The {{N_PAIRS}} benchmark pairs that appear in the paper's figures (the statistics use all 99). Every image uses seed 1, so differences come from the speedup, not from chance. The gray outline is the baseline. Every config ran on the same RTX PRO 6000. Under each image: Gemini's description length for that image and this pair's seed diversity for that config.</p>
+    <div class="picker">
+      <button class="nav" type="button" id="prev" aria-label="Previous pair">‹ Prev</button>
+      <select id="pairsel" aria-label="Choose a pair"></select>
+      <button class="nav" type="button" id="next" aria-label="Next pair">Next ›</button>
+      <span class="muted num" id="count"></span>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="Showcase pairs"></div>
+    <div class="inputs" id="inputs"></div>
+    <div class="grid" id="grid"></div>
+    <p class="note" id="pairnote"></p>
+  </section>
+
+  <section id="seeds">
+    <span class="eyebrow">Diversity</span>
+    <h2>Four seeds: does each one still give a different idea?</h2>
+    <p class="muted">Same pair as above, seeds 1–4 (pick any pair above). The baseline's seeds should look like four different blends. Step caching (config 4) keeps that. The 8-step LoRA (config 7) makes the seeds agree more: across all 99 pairs its diversity is 7% lower.</p>
+    <div class="seeds" id="seedrows"></div>
+  </section>
+
+  <section id="charts">
+    <span class="eyebrow">The numbers</span>
+    <h2>Faster in every case; creativity holds, diversity is the cost</h2>
+    <div class="charts">
+      <div class="panel wide">
+        <h3>Seconds per image (median of 396)</h3>
+        <div class="legend"><span><i class="sq" style="background:var(--bar-base)"></i>baseline</span><span><i class="sq" style="background:var(--accent)"></i>RTX PRO 6000</span></div>
+        {{SPEED_CHART}}
+      </div>
+      <div class="panel">
+        <h3>Creativity: change in description length vs baseline (words)</h3>
+        <div class="legend"><span><i class="f"></i>95% interval excludes 0</span><span><i></i>no clear change</span></div>
+        {{WORDS_CHART}}
+        <p class="note">Baseline: 51.5 words. The study's limit is 10% (5 words); the largest drop is 1.4.</p>
+      </div>
+      <div class="panel">
+        <h3>Diversity: change in mean distance between seeds vs baseline</h3>
+        <div class="legend"><span><i class="f"></i>95% interval excludes 0</span><span><i></i>no clear change</span></div>
+        {{DIV_CHART}}
+        <p class="note">Baseline: 0.358 (DreamSim). Lines are 95% bootstrap intervals over the same 99 pairs.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="table">
+    <span class="eyebrow">All results</span>
+    <h2>Every configuration</h2>
+    <div class="tw"><table>
+      <thead><tr><th>#</th><th>Configuration</th><th class="n">s/image</th><th class="n">Speedup</th><th class="n">Peak GB</th><th class="n">Words</th><th class="n">Copy / insert / split %</th><th class="n">Diversity</th><th class="n">Distance to baseline</th></tr></thead>
+      <tbody>{{TABLE_ROWS}}</tbody>
+    </table></div>
+    <p class="note">Highlighted: the two recommended configs. All configs ran on one RTX PRO 6000 (Blackwell). Words: mean of two Gemini scoring runs. Distance to baseline: DreamSim between each output and the baseline's output for the same pair and seed; two different baseline seeds are 0.358 apart.</p>
+  </section>
+
+  <section id="method">
+    <span class="eyebrow">What to take away</span>
+    <h2>Findings and limits</h2>
+    <ul class="plain">
+      <li><b>No speedup made the blends more literal.</b> Description length moved by at most 1.4 words, and copy, insertion and split stayed rare.</li>
+      <li><b>Cheaper steps are free.</b> FP8 and 4-bit NVFP4 cost neither creativity nor diversity (NVFP4's seed diversity even rose 3%).</li>
+      <li><b>Fewer steps cost diversity.</b> The 8-step LoRAs keep each blend non-literal but make the seeds more alike (6–9% lower), and that cost is the same with or without 4-bit weights.</li>
+      <li><b>Recommended:</b> config 4 (4.9×) keeps diversity almost intact; config 7 (7.5×) is the fastest if a 7% diversity loss is acceptable.</li>
+      <li class="muted">The paper's ~34 s per image was measured on an L40S, a different GPU: compare these speedups with our own baseline, not with the paper's time. Limits: the paper's scorer (Gemini 2.5 Flash) is closed to new users, so we used Gemini 3.8 Flash and compare to our own baseline. Copy/insertion/split use our own keyword rule. One model, one benchmark.</li>
+    </ul>
+  </section>
+</main>
+<div id="tip" hidden></div>
+
+<script>
+const D = {{DATA}};
+const $ = (id) => document.getElementById(id);
+const fig = (src, cap, cls) => {
+  const f = document.createElement("figure"); if (cls) f.className = cls;
+  const i = document.createElement("img"); i.src = src; i.alt = cap.replace(/<[^>]+>/g, "");
+  const c = document.createElement("figcaption"); c.innerHTML = cap; f.append(i, c); return f;
+};
+const cache = {};
+let cur = 0;
+async function load(id) {
+  if (!cache[id]) {
+    const r = await fetch(`pairs/${id}.json`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    cache[id] = await r.json();
+  }
+  return cache[id];
+}
+async function showPair(k) {
+  cur = k;
+  const meta = D.pairs[k];
+  $("pairsel").value = meta.id;
+  $("prev").disabled = k === 0; $("next").disabled = k === D.pairs.length - 1;
+  $("count").textContent = `pair ${k + 1} of ${D.pairs.length}`;
+  [...$("chips").children].forEach(b => b.setAttribute("aria-pressed", b.dataset.id === meta.id ? "true" : "false"));
+  $("compare").classList.add("loading");
+  let p;
+  try { p = await load(meta.id); }
+  catch (e) { $("pairnote").textContent = `Could not load the images for ${meta.label} (${e.message}). Try another pair or reload.`; return; }
+  finally { $("compare").classList.remove("loading"); }
+  if (cur !== k) return;  // a newer pick arrived while this one loaded
+  $("inputs").replaceChildren(fig(p.in1, "<b>Input 1</b> (top-left)"), fig(p.in2, "<b>Input 2</b> (bottom-right)"));
+  $("grid").replaceChildren(...Object.keys(D.names).map(c => {
+    const s = D.speed[c], x = D.speed["0"] / s;
+    return fig(p.outs[c], `<b>${c} · ${D.names[c][0]}</b><br>${s.toFixed(2)} s · ${x.toFixed(1)}×<br>${p.words[c].toFixed(0)} words · diversity ${p.pdiv[c].toFixed(3)}`, c === "0" ? "base" : "");
+  }));
+  const why = meta.why ? ` · ${meta.why.toLowerCase()}${meta.why === "Typical pair" ? "" : " among these pairs for config 7"}` : "";
+  $("pairnote").textContent = `${meta.label} (${meta.cat})${why} · paper Fig. ${meta.figs.join(", ")}. Words: mean of two Gemini runs for the seed-1 image. Diversity: mean distance between this pair's four seeds.`;
+  $("seedrows").replaceChildren(...D.seedView.map(c => {
+    const row = document.createElement("div"); row.className = "seedrow";
+    const who = document.createElement("div"); who.className = "who";
+    who.innerHTML = `<b>${c} · ${D.names[c][0]}</b><span class="muted">this pair ${p.pdiv[c].toFixed(3)} · all pairs ${D.div[c].toFixed(3)}</span>`;
+    row.append(who);
+    p.seeds[c].forEach((src, j) => {
+      const img = document.createElement("img");
+      img.src = src || p.outs[c]; img.alt = `${D.names[c][0]}, seed ${j + 1}`; row.append(img);
+    });
+    return row;
+  }));
+}
+const groups = {};
+D.pairs.forEach((m, k) => { (groups[m.cat] ||= []).push([m, k]); });
+Object.keys(groups).sort().forEach(cat => {
+  const og = document.createElement("optgroup"); og.label = cat;
+  groups[cat].forEach(([m]) => { const o = document.createElement("option"); o.value = m.id;
+    o.textContent = m.label + (m.why && m.why !== "Typical pair" ? ` (${m.why.toLowerCase()})` : ""); og.append(o); });
+  $("pairsel").append(og);
+});
+const idx = Object.fromEntries(D.pairs.map((m, k) => [m.id, k]));
+$("pairsel").addEventListener("change", e => showPair(idx[e.target.value]));
+$("prev").addEventListener("click", () => cur > 0 && showPair(cur - 1));
+$("next").addEventListener("click", () => cur < D.pairs.length - 1 && showPair(cur + 1));
+D.showcase.forEach(id => {
+  const m = D.pairs[idx[id]];
+  const b = document.createElement("button"); b.className = "chip"; b.type = "button"; b.dataset.id = id; b.id = "chip-" + id;
+  b.innerHTML = `${m.label}<small>${m.why === "Typical pair" ? "" : m.why}</small>`;
+  b.addEventListener("click", () => showPair(idx[id])); $("chips").append(b);
+});
+showPair(idx[D.showcase[0]]);
+const tip = $("tip");
+document.querySelectorAll(".chart [data-tip]").forEach(el => {
+  el.addEventListener("mousemove", e => { tip.textContent = el.dataset.tip; tip.hidden = false;
+    tip.style.left = Math.min(e.clientX + 12, innerWidth - 290) + "px"; tip.style.top = (e.clientY + 14) + "px"; });
+  el.addEventListener("mouseleave", () => { tip.hidden = true; });
+});
+</script>

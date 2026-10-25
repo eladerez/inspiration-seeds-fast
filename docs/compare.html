@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Inspiration Seeds Pair Viewer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column; the image comparison sits right under the headline, charts and table follow. */
+:root {
+  --bg: #f4f5f7; --surface: #ffffff; --ink: #14171c; --ink-2: #545b66; --line: #dde1e7;
+  --accent: #2a78d6; --accent-soft: #e3edfa; --bar-base: #9aa2ad;
+  --display: "Newsreader", Georgia, "Times New Roman", serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111418; --surface: #191d23; --ink: #eceff3; --ink-2: #a3abb6; --line: #2c323b;
+  --accent: #3987e5; --accent-soft: #1b2b40; --bar-base: #7a8390; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #111418; --surface: #191d23; --ink: #eceff3; --ink-2: #a3abb6; --line: #2c323b;
+  --accent: #3987e5; --accent-soft: #1b2b40; --bar-base: #7a8390; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.6 var(--body); margin: 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 72px; }
+main { max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 52px; }
+section { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+h1, h2 { font-family: var(--display); font-weight: 600; line-height: 1.15; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 4.6vw, 2.9rem); letter-spacing: -0.01em; }
+h2 { font-size: 1.5rem; }
+p { margin: 0; max-width: 68ch; }
+.eyebrow { font: 500 0.74rem/1 var(--mono); text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); }
+.lede { font-size: 1.12rem; color: var(--ink-2); }
+.muted { color: var(--ink-2); }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.facts { display: flex; flex-wrap: wrap; gap: 10px 28px; padding-top: 6px; }
+.fact { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.fact b { font: 600 1.5rem/1.1 var(--mono); font-variant-numeric: tabular-nums; }
+.fact span { font-size: 0.86rem; color: var(--ink-2); }
+
+/* pair picker and comparison grid */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: 500 0.85rem/1 var(--body); color: var(--ink); background: var(--surface); border: 1px solid var(--line);
+  border-radius: 999px; padding: 8px 12px; cursor: pointer; }
+.chip small { color: var(--ink-2); font-size: 0.74rem; margin-left: 6px; }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.chip[aria-pressed="true"] small { color: #e7efff; }
+.chip:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.picker { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.picker select { font: 0.95rem var(--body); color: var(--ink); background: var(--surface); border: 1px solid var(--line);
+  border-radius: 6px; padding: 8px 10px; max-width: 100%; min-width: 0; flex: 1 1 260px; }
+.nav { font: 600 0.9rem/1 var(--body); color: var(--ink); background: var(--surface); border: 1px solid var(--line);
+  border-radius: 6px; padding: 9px 12px; cursor: pointer; }
+.nav:disabled { opacity: 0.4; cursor: default; }
+select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.loading img { opacity: 0.35; }
+.inputs { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+.inputs figure { width: 150px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+figure { margin: 0; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+figure img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 4px; display: block; background: var(--line); }
+figcaption { font-size: 0.84rem; line-height: 1.35; color: var(--ink-2); }
+figcaption b { color: var(--ink); font-weight: 600; }
+figure.base img { outline: 2px solid var(--bar-base); outline-offset: 2px; }
+.note { font-size: 0.86rem; color: var(--ink-2); }
+
+/* seeds view */
+.seedrow { display: grid; grid-template-columns: 150px repeat(4, minmax(0, 1fr)); gap: 10px; align-items: center; }
+.seedrow .who { font-size: 0.86rem; line-height: 1.35; }
+.seedrow .who b { display: block; font-weight: 600; }
+.seedrow img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 4px; display: block; }
+.seeds { display: flex; flex-direction: column; gap: 12px; }
+@media (max-width: 560px) { .seedrow { grid-template-columns: repeat(4, minmax(0, 1fr)); } .seedrow .who { grid-column: 1 / -1; } }
+
+/* charts */
+.charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 24px; }
+.panel.wide { grid-column: 1 / -1; }
+.panel.wide .chart { max-width: 760px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px; min-width: 0;
+  display: flex; flex-direction: column; gap: 8px; }
+.panel h3 { font: 600 0.95rem/1.3 var(--body); margin: 0; }
+.chart { width: 100%; height: auto; display: block; overflow: visible; }
+.chart .grid { stroke: var(--line); stroke-width: 1; }
+.chart .zero { stroke: var(--ink-2); stroke-width: 1; stroke-dasharray: 3 3; }
+.chart .tick { fill: var(--ink-2); font: 11px var(--mono); }
+.chart .lab { fill: var(--ink); font: 12px var(--body); }
+.chart .val { fill: var(--ink-2); font: 11px var(--mono); }
+.chart .bar { fill: var(--accent); }
+.chart .bar.base { fill: var(--bar-base); }
+.chart .ci { stroke: var(--ink-2); stroke-width: 2; stroke-linecap: round; }
+.chart .pt { fill: var(--surface); stroke: var(--accent); stroke-width: 2; }
+.chart .pt.sig { fill: var(--accent); }
+.chart [data-tip] { cursor: default; }
+.chart [data-tip]:hover { opacity: 0.8; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.82rem; color: var(--ink-2); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px;
+  border: 2px solid var(--accent); }
+.legend i.f { background: var(--accent); }
+.legend i.sq { border-radius: 2px; border: 0; }
+#tip { position: fixed; pointer-events: none; z-index: 20; max-width: 280px; background: var(--ink); color: var(--bg);
+  font: 12px/1.4 var(--body); padding: 6px 8px; border-radius: 4px; }
+
+/* table */
+.tw { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 500 0.72rem/1.3 var(--mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-2); }
+td.n, th.n { text-align: right; white-space: nowrap; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+td .sub { display: block; font-size: 0.78rem; color: var(--ink-2); }
+tr:last-child td { border-bottom: 0; }
+tr.hl td { background: var(--accent-soft); }
+ul.plain { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 8px; max-width: 72ch; }
+@media (prefers-reduced-motion: no-preference) { figure img { transition: opacity .15s; } }
+</style>
+
+<main>
+  <header style="display:flex;flex-direction:column;gap:14px">
+    <span class="eyebrow">Inspiration Seeds · speed vs creativity · 99 pairs × 4 seeds per config</span>
+    <h1>Inspiration Seeds, Faster</h1>
+    <p class="lede">Inspiration Seeds (FLUX.1 Kontext + a LoRA) blends two images into a new, non-literal object. We made it faster seven ways and checked what each speedup did to the blends: how creative they are (Gemini's description length, the paper's metric) and how different the four seeds of a pair stay (DreamSim).</p>
+    <div class="facts">
+      <div class="fact"><b class="num">7.5×</b><span>fastest: 20.91 → 2.77 s per image</span></div>
+      <div class="fact"><b class="num">−1.4 words</b><span>largest creativity change (of 51.5)</span></div>
+      <div class="fact"><b class="num">−6 to −9%</b><span>seed diversity with 8-step LoRAs</span></div>
+      <div class="fact"><b class="num">$49.45</b><span>cloud cost of these runs</span></div>
+    </div>
+  </header>
+
+  <section id="compare">
+    <span class="eyebrow">See for yourself</span>
+    <h2>The same pair and seed, every configuration</h2>
+    <p class="muted">The 29 benchmark pairs that appear in the paper's figures (the statistics use all 99). Every image uses seed 1, so differences come from the speedup, not from chance. The gray outline is the baseline. Every config ran on the same RTX PRO 6000. Under each image: Gemini's description length for that image and this pair's seed diversity for that config.</p>
+    <div class="picker">
+      <button class="nav" type="button" id="prev" aria-label="Previous pair">‹ Prev</button>
+      <select id="pairsel" aria-label="Choose a pair"></select>
+      <button class="nav" type="button" id="next" aria-label="Next pair">Next ›</button>
+      <span class="muted num" id="count"></span>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="Showcase pairs"></div>
+    <div class="inputs" id="inputs"></div>
+    <div class="grid" id="grid"></div>
+    <p class="note" id="pairnote"></p>
+  </section>
+
+  <section id="seeds">
+    <span class="eyebrow">Diversity</span>
+    <h2>Four seeds: does each one still give a different idea?</h2>
+    <p class="muted">Same pair as above, seeds 1–4 (pick any pair above). The baseline's seeds should look like four different blends. Step caching (config 4) keeps that. The 8-step LoRA (config 7) makes the seeds agree more: across all 99 pairs its diversity is 7% lower.</p>
+    <div class="seeds" id="seedrows"></div>
+  </section>
+
+  <section id="charts">
+    <span class="eyebrow">The numbers</span>
+    <h2>Faster in every case; creativity holds, diversity is the cost</h2>
+    <div class="charts">
+      <div class="panel wide">
+        <h3>Seconds per image (median of 396)</h3>
+        <div class="legend"><span><i class="sq" style="background:var(--bar-base)"></i>baseline</span><span><i class="sq" style="background:var(--accent)"></i>RTX PRO 6000</span></div>
+        <svg class="chart" viewBox="0 0 640 274" role="img" aria-label="Seconds per image for each configuration"><line class="grid" x1="190.0" x2="190.0" y1="4" y2="248"/><text class="tick" x="190.0" y="264" text-anchor="middle">0 s</text><line class="grid" x1="253.5" x2="253.5" y1="4" y2="248"/><text class="tick" x="253.5" y="264" text-anchor="middle">5 s</text><line class="grid" x1="316.9" x2="316.9" y1="4" y2="248"/><text class="tick" x="316.9" y="264" text-anchor="middle">10 s</text><line class="grid" x1="380.4" x2="380.4" y1="4" y2="248"/><text class="tick" x="380.4" y="264" text-anchor="middle">15 s</text><line class="grid" x1="443.8" x2="443.8" y1="4" y2="248"/><text class="tick" x="443.8" y="264" text-anchor="middle">20 s</text><line class="grid" x1="507.3" x2="507.3" y1="4" y2="248"/><text class="tick" x="507.3" y="264" text-anchor="middle">25 s</text><text class="lab" x="180" y="21" text-anchor="end">0 · Baseline</text><rect class="bar base" x="190" y="9" width="265.4" height="20" rx="3" data-tip="0 · Baseline: 20.91 s/image, 1.00×"/><text class="val" x="461.4" y="21">20.91 s · 1.00×</text><text class="lab" x="180" y="51" text-anchor="end">1 · Cached prompt + compile</text><rect class="bar" x="190" y="39" width="201.5" height="20" rx="3" data-tip="1 · Cached prompt + compile: 15.87 s/image, 1.32×"/><text class="val" x="397.5" y="51">15.87 s · 1.32×</text><text class="lab" x="180" y="81" text-anchor="end">2 · + FP8</text><rect class="bar" x="190" y="69" width="151.0" height="20" rx="3" data-tip="2 · + FP8: 11.89 s/image, 1.76×"/><text class="val" x="347.0" y="81">11.89 s · 1.76×</text><text class="lab" x="180" y="111" text-anchor="end">3 · NVFP4</text><rect class="bar" x="190" y="99" width="110.3" height="20" rx="3" data-tip="3 · NVFP4: 8.69 s/image, 2.41×"/><text class="val" x="306.3" y="111">8.69 s · 2.41×</text><text class="lab" x="180" y="141" text-anchor="end">4 · NVFP4 + step cache</text><rect class="bar" x="190" y="129" width="53.8" height="20" rx="3" data-tip="4 · NVFP4 + step cache: 4.24 s/image, 4.93×"/><text class="val" x="249.8" y="141">4.24 s · 4.93×</text><text class="lab" x="180" y="171" text-anchor="end">5 · Turbo-Alpha 8-step</text><rect class="bar" x="190" y="159" width="89.6" height="20" rx="3" data-tip="5 · Turbo-Alpha 8-step: 7.06 s/image, 2.96×"/><text class="val" x="285.6" y="171">7.06 s · 2.96×</text><text class="lab" x="180" y="201" text-anchor="end">6 · Hyper-FLUX 8-step</text><rect class="bar" x="190" y="189" width="89.8" height="20" rx="3" data-tip="6 · Hyper-FLUX 8-step: 7.08 s/image, 2.95×"/><text class="val" x="285.8" y="201">7.08 s · 2.95×</text><text class="lab" x="180" y="231" text-anchor="end">7 · NVFP4 + Turbo-Alpha</text><rect class="bar" x="190" y="219" width="35.2" height="20" rx="3" data-tip="7 · NVFP4 + Turbo-Alpha: 2.77 s/image, 7.54×"/><text class="val" x="231.2" y="231">2.77 s · 7.54×</text></svg>
+      </div>
+      <div class="panel">
+        <h3>Creativity: change in description length vs baseline (words)</h3>
+        <div class="legend"><span><i class="f"></i>95% interval excludes 0</span><span><i></i>no clear change</span></div>
+        <svg class="chart" viewBox="0 0 380 236" role="img" aria-label="Change in description length vs baseline"><line class="grid" x1="150.0" x2="150.0" y1="4" y2="208"/><text class="tick" x="150.0" y="224" text-anchor="middle">-3.0</text><line class="grid" x1="202.5" x2="202.5" y1="4" y2="208"/><text class="tick" x="202.5" y="224" text-anchor="middle">-1.5</text><line class="zero" x1="255.0" x2="255.0" y1="4" y2="208"/><text class="tick" x="255.0" y="224" text-anchor="middle">0</text><line class="grid" x1="307.5" x2="307.5" y1="4" y2="208"/><text class="tick" x="307.5" y="224" text-anchor="middle">+1.5</text><line class="grid" x1="360.0" x2="360.0" y1="4" y2="208"/><text class="tick" x="360.0" y="224" text-anchor="middle">+3.0</text><text class="lab" x="140" y="24.0" text-anchor="end">1 · Cached prompt + compile</text><line class="ci" x1="216.9" x2="270.3" y1="20.0" y2="20.0"/><circle class="pt" cx="243.8" cy="20.0" r="5" data-tip="1 · Cached prompt + compile: -0.3 (-0.6%), 95% CI -1.1 to +0.4; lower in 51% of pairs"/><text class="lab" x="140" y="52.0" text-anchor="end">2 · + FP8</text><line class="ci" x1="218.7" x2="269.2" y1="48.0" y2="48.0"/><circle class="pt" cx="243.9" cy="48.0" r="5" data-tip="2 · + FP8: -0.3 (-0.6%), 95% CI -1.0 to +0.4; lower in 55% of pairs"/><text class="lab" x="140" y="80.0" text-anchor="end">3 · NVFP4</text><line class="ci" x1="223.7" x2="278.4" y1="76.0" y2="76.0"/><circle class="pt" cx="250.5" cy="76.0" r="5" data-tip="3 · NVFP4: -0.1 (-0.3%), 95% CI -0.9 to +0.7; lower in 54% of pairs"/><text class="lab" x="140" y="108.0" text-anchor="end">4 · NVFP4 + step cache</text><line class="ci" x1="174.0" x2="236.1" y1="104.0" y2="104.0"/><circle class="pt sig" cx="205.0" cy="104.0" r="5" data-tip="4 · NVFP4 + step cache: -1.4 (-2.8%), 95% CI -2.3 to -0.5; lower in 66% of pairs"/><text class="lab" x="140" y="136.0" text-anchor="end">5 · Turbo-Alpha 8-step</text><line class="ci" x1="195.8" x2="265.2" y1="132.0" y2="132.0"/><circle class="pt" cx="229.9" cy="132.0" r="5" data-tip="5 · Turbo-Alpha 8-step: -0.7 (-1.4%), 95% CI -1.7 to +0.3; lower in 56% of pairs"/><text class="lab" x="140" y="164.0" text-anchor="end">6 · Hyper-FLUX 8-step</text><line class="ci" x1="192.4" x2="263.0" y1="160.0" y2="160.0"/><circle class="pt" cx="228.2" cy="160.0" r="5" data-tip="6 · Hyper-FLUX 8-step: -0.8 (-1.5%), 95% CI -1.8 to +0.2; lower in 56% of pairs"/><text class="lab" x="140" y="192.0" text-anchor="end">7 · NVFP4 + Turbo-Alpha</text><line class="ci" x1="202.0" x2="270.8" y1="188.0" y2="188.0"/><circle class="pt" cx="236.5" cy="188.0" r="5" data-tip="7 · NVFP4 + Turbo-Alpha: -0.5 (-1.0%), 95% CI -1.5 to +0.5; lower in 53% of pairs"/></svg>
+        <p class="note">Baseline: 51.5 words. The study's limit is 10% (5 words); the largest drop is 1.4.</p>
+      </div>
+      <div class="panel">
+        <h3>Diversity: change in mean distance between seeds vs baseline</h3>
+        <div class="legend"><span><i class="f"></i>95% interval excludes 0</span><span><i></i>no clear change</span></div>
+        <svg class="chart" viewBox="0 0 380 236" role="img" aria-label="Change in seed diversity vs baseline"><line class="grid" x1="150.0" x2="150.0" y1="4" y2="208"/><text class="tick" x="150.0" y="224" text-anchor="middle">-0.050</text><line class="grid" x1="202.5" x2="202.5" y1="4" y2="208"/><text class="tick" x="202.5" y="224" text-anchor="middle">-0.025</text><line class="zero" x1="255.0" x2="255.0" y1="4" y2="208"/><text class="tick" x="255.0" y="224" text-anchor="middle">0</text><line class="grid" x1="307.5" x2="307.5" y1="4" y2="208"/><text class="tick" x="307.5" y="224" text-anchor="middle">+0.025</text><line class="grid" x1="360.0" x2="360.0" y1="4" y2="208"/><text class="tick" x="360.0" y="224" text-anchor="middle">+0.050</text><text class="lab" x="140" y="24.0" text-anchor="end">1 · Cached prompt + compile</text><line class="ci" x1="244.9" x2="256.0" y1="20.0" y2="20.0"/><circle class="pt" cx="250.5" cy="20.0" r="5" data-tip="1 · Cached prompt + compile: -0.002 (-0.6%), 95% CI -0.005 to 0; lower in 61% of pairs"/><text class="lab" x="140" y="52.0" text-anchor="end">2 · + FP8</text><line class="ci" x1="242.5" x2="261.5" y1="48.0" y2="48.0"/><circle class="pt" cx="251.8" cy="48.0" r="5" data-tip="2 · + FP8: -0.002 (-0.4%), 95% CI -0.006 to +0.003; lower in 64% of pairs"/><text class="lab" x="140" y="80.0" text-anchor="end">3 · NVFP4</text><line class="ci" x1="265.3" x2="289.5" y1="76.0" y2="76.0"/><circle class="pt sig" cx="277.4" cy="76.0" r="5" data-tip="3 · NVFP4: +0.011 (+3.0%), 95% CI +0.005 to +0.016; lower in 33% of pairs"/><text class="lab" x="140" y="108.0" text-anchor="end">4 · NVFP4 + step cache</text><line class="ci" x1="217.9" x2="246.2" y1="104.0" y2="104.0"/><circle class="pt sig" cx="231.9" cy="104.0" r="5" data-tip="4 · NVFP4 + step cache: -0.011 (-3.1%), 95% CI -0.018 to -0.004; lower in 65% of pairs"/><text class="lab" x="140" y="136.0" text-anchor="end">5 · Turbo-Alpha 8-step</text><line class="ci" x1="162.9" x2="212.4" y1="132.0" y2="132.0"/><circle class="pt sig" cx="188.0" cy="132.0" r="5" data-tip="5 · Turbo-Alpha 8-step: -0.032 (-8.9%), 95% CI -0.044 to -0.020; lower in 71% of pairs"/><text class="lab" x="140" y="164.0" text-anchor="end">6 · Hyper-FLUX 8-step</text><line class="ci" x1="176.4" x2="236.9" y1="160.0" y2="160.0"/><circle class="pt sig" cx="207.0" cy="160.0" r="5" data-tip="6 · Hyper-FLUX 8-step: -0.023 (-6.4%), 95% CI -0.037 to -0.009; lower in 58% of pairs"/><text class="lab" x="140" y="192.0" text-anchor="end">7 · NVFP4 + Turbo-Alpha</text><line class="ci" x1="174.4" x2="226.5" y1="188.0" y2="188.0"/><circle class="pt sig" cx="200.7" cy="188.0" r="5" data-tip="7 · NVFP4 + Turbo-Alpha: -0.026 (-7.2%), 95% CI -0.038 to -0.014; lower in 68% of pairs"/></svg>
+        <p class="note">Baseline: 0.358 (DreamSim). Lines are 95% bootstrap intervals over the same 99 pairs.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="table">
+    <span class="eyebrow">All results</span>
+    <h2>Every configuration</h2>
+    <div class="tw"><table>
+      <thead><tr><th>#</th><th>Configuration</th><th class="n">s/image</th><th class="n">Speedup</th><th class="n">Peak GB</th><th class="n">Words</th><th class="n">Copy / insert / split %</th><th class="n">Diversity</th><th class="n">Distance to baseline</th></tr></thead>
+      <tbody><tr><td>0</td><td>Baseline<span class="sub">Upstream settings, bf16, 28 steps</span></td><td class="n">20.91</td><td class="n">1.00×</td><td class="n">34.2</td><td class="n">51.5</td><td class="n">1.1 / 5.4 / 2.8</td><td class="n">0.358</td><td class="n">—</td></tr><tr><td>1</td><td>Cached prompt + compile<span class="sub">T5 never loaded; torch.compile</span></td><td class="n">15.87</td><td class="n">1.32×</td><td class="n">25.0</td><td class="n">51.2</td><td class="n">1.5 / 3.9 / 3.4</td><td class="n">0.356</td><td class="n">0.020</td></tr><tr><td>2</td><td>+ FP8<span class="sub">FP8 weights and activations</span></td><td class="n">11.89</td><td class="n">1.76×</td><td class="n">15.4</td><td class="n">51.2</td><td class="n">1.6 / 5.1 / 2.1</td><td class="n">0.357</td><td class="n">0.036</td></tr><tr><td>3</td><td>NVFP4<span class="sub">Nunchaku 4-bit transformer</span></td><td class="n">8.69</td><td class="n">2.41×</td><td class="n">not measured</td><td class="n">51.4</td><td class="n">1.0 / 5.3 / 3.5</td><td class="n">0.369</td><td class="n">0.074</td></tr><tr class="hl"><td>4</td><td>NVFP4 + step cache<span class="sub">First-block cache, threshold 0.12</span></td><td class="n">4.24</td><td class="n">4.93×</td><td class="n">11.7</td><td class="n">50.1</td><td class="n">0.6 / 4.3 / 3.3</td><td class="n">0.347</td><td class="n">0.102</td></tr><tr><td>5</td><td>Turbo-Alpha 8-step<span class="sub">Few-step LoRA, bf16</span></td><td class="n">7.06</td><td class="n">2.96×</td><td class="n">27.3</td><td class="n">50.8</td><td class="n">0.8 / 3.0 / 2.1</td><td class="n">0.326</td><td class="n">0.219</td></tr><tr><td>6</td><td>Hyper-FLUX 8-step<span class="sub">Few-step LoRA, bf16</span></td><td class="n">7.08</td><td class="n">2.95×</td><td class="n">27.3</td><td class="n">50.7</td><td class="n">0.6 / 3.8 / 2.4</td><td class="n">0.335</td><td class="n">0.252</td></tr><tr class="hl"><td>7</td><td>NVFP4 + Turbo-Alpha<span class="sub">4-bit and 8 steps</span></td><td class="n">2.77</td><td class="n">7.54×</td><td class="n">12.7</td><td class="n">51.0</td><td class="n">0.6 / 5.8 / 1.8</td><td class="n">0.332</td><td class="n">0.223</td></tr></tbody>
+    </table></div>
+    <p class="note">Highlighted: the two recommended configs. All configs ran on one RTX PRO 6000 (Blackwell). Words: mean of two Gemini scoring runs. Distance to baseline: DreamSim between each output and the baseline's output for the same pair and seed; two different baseline seeds are 0.358 apart.</p>
+  </section>
+
+  <section id="method">
+    <span class="eyebrow">What to take away</span>
+    <h2>Findings and limits</h2>
+    <ul class="plain">
+      <li><b>No speedup made the blends more literal.</b> Description length moved by at most 1.4 words, and copy, insertion and split stayed rare.</li>
+      <li><b>Cheaper steps are free.</b> FP8 and 4-bit NVFP4 cost neither creativity nor diversity (NVFP4's seed diversity even rose 3%).</li>
+      <li><b>Fewer steps cost diversity.</b> The 8-step LoRAs keep each blend non-literal but make the seeds more alike (6–9% lower), and that cost is the same with or without 4-bit weights.</li>
+      <li><b>Recommended:</b> config 4 (4.9×) keeps diversity almost intact; config 7 (7.5×) is the fastest if a 7% diversity loss is acceptable.</li>
+      <li class="muted">The paper's ~34 s per image was measured on an L40S, a different GPU: compare these speedups with our own baseline, not with the paper's time. Limits: the paper's scorer (Gemini 2.5 Flash) is closed to new users, so we used Gemini 3.8 Flash and compare to our own baseline. Copy/insertion/split use our own keyword rule. One model, one benchmark.</li>
+    </ul>
+  </section>
+</main>
+<div id="tip" hidden></div>
+
+<script>
+const D = {"pairs": [{"id": "002_arch3_x_food2", "label": "arch3 \u00d7 food2", "cat": "arch \u00d7 food", "why": null, "figs": [25]}, {"id": "003_arch2_x_food2", "label": "arch2 \u00d7 food2", "cat": "arch \u00d7 food", "why": null, "figs": [21, 24]}, {"id": "004_arch6_x_nature2", "label": "arch6 \u00d7 nature2", "cat": "arch \u00d7 nature", "why": null, "figs": [25]}, {"id": "008_arch2_x_sea9", "label": "arch2 \u00d7 sea9", "cat": "arch \u00d7 sea", "why": null, "figs": [24]}, {"id": "009_fashion5_x_food1", "label": "fashion5 \u00d7 food1", "cat": "fashion \u00d7 food", "why": "Typical pair", "figs": [1, 21, 26]}, {"id": "011_fashion6_x_nature7", "label": "fashion6 \u00d7 nature7", "cat": "fashion \u00d7 nature", "why": "Diversity gained", "figs": [3, 26]}, {"id": "013_fashion5_x_other3", "label": "fashion5 \u00d7 other3", "cat": "fashion \u00d7 other", "why": null, "figs": [9, 22]}, {"id": "015_fashion6_x_sea7", "label": "fashion6 \u00d7 sea7", "cat": "fashion \u00d7 sea", "why": "Largest diversity loss", "figs": [10, 22]}, {"id": "017_food2_x_nature4", "label": "food2 \u00d7 nature4", "cat": "food \u00d7 nature", "why": null, "figs": [27]}, {"id": "019_food1_x_other1", "label": "food1 \u00d7 other1", "cat": "food \u00d7 other", "why": null, "figs": [27]}, {"id": "022_food5_x_sea5", "label": "food5 \u00d7 sea5", "cat": "food \u00d7 sea", "why": null, "figs": [28]}, {"id": "031_fashion4_x_arch4", "label": "fashion4 \u00d7 arch4", "cat": "fashion \u00d7 arch", "why": null, "figs": [6, 21, 22, 26]}, {"id": "032_food6_x_nature8", "label": "food6 \u00d7 nature8", "cat": "food \u00d7 nature", "why": null, "figs": [9, 21, 28]}, {"id": "034_sea1_x_food3", "label": "sea1 \u00d7 food3", "cat": "sea \u00d7 food", "why": null, "figs": [23]}, {"id": "038_arch2_x_nature3", "label": "arch2 \u00d7 nature3", "cat": "arch \u00d7 nature", "why": null, "figs": [24]}, {"id": "039_fashion3_x_nature6", "label": "fashion3 \u00d7 nature6", "cat": "fashion \u00d7 nature", "why": null, "figs": [21, 25]}, {"id": "046_food1_x_nature2", "label": "food1 \u00d7 nature2", "cat": "food \u00d7 nature", "why": null, "figs": [1, 21, 27]}, {"id": "052_food1_x_sea4", "label": "food1 \u00d7 sea4", "cat": "food \u00d7 sea", "why": null, "figs": [1, 23]}, {"id": "056_fashion4_x_food6", "label": "fashion4 \u00d7 food6", "cat": "fashion \u00d7 food", "why": null, "figs": [26]}, {"id": "057_other1_x_sea3", "label": "other1 \u00d7 sea3", "cat": "other \u00d7 sea", "why": null, "figs": [9]}, {"id": "058_arch7_x_sea8", "label": "arch7 \u00d7 sea8", "cat": "arch \u00d7 sea", "why": "Typical pair", "figs": [21, 25]}, {"id": "059_arch2_x_nature5", "label": "arch2 \u00d7 nature5", "cat": "arch \u00d7 nature", "why": null, "figs": [6, 24]}, {"id": "069_food4_x_other2", "label": "food4 \u00d7 other2", "cat": "food \u00d7 other", "why": null, "figs": [21, 23, 27]}, {"id": "076_food4_x_sea9", "label": "food4 \u00d7 sea9", "cat": "food \u00d7 sea", "why": null, "figs": [21, 28]}, {"id": "080_nature3_x_sea3", "label": "nature3 \u00d7 sea3", "cat": "nature \u00d7 sea", "why": null, "figs": [23]}, {"id": "082_nature3_x_sea7", "label": "nature3 \u00d7 sea7", "cat": "nature \u00d7 sea", "why": "Typical pair", "figs": [21, 28]}, {"id": "087_arch1_x_food1", "label": "arch1 \u00d7 food1", "cat": "arch \u00d7 food", "why": null, "figs": [1]}, {"id": "088_food2_x_sea9", "label": "food2 \u00d7 sea9", "cat": "food \u00d7 sea", "why": null, "figs": [6]}, {"id": "089_arch4_x_food2", "label": "arch4 \u00d7 food2", "cat": "arch \u00d7 food", "why": "Typical pair", "figs": [22]}], "showcase": ["089_arch4_x_food2", "058_arch7_x_sea8", "009_fashion5_x_food1", "082_nature3_x_sea7", "015_fashion6_x_sea7", "011_fashion6_x_nature7"], "names": {"0": ["Baseline", "Upstream settings, bf16, 28 steps"], "1": ["Cached prompt + compile", "T5 never loaded; torch.compile"], "2": ["+ FP8", "FP8 weights and activations"], "3": ["NVFP4", "Nunchaku 4-bit transformer"], "4": ["NVFP4 + step cache", "First-block cache, threshold 0.12"], "5": ["Turbo-Alpha 8-step", "Few-step LoRA, bf16"], "6": ["Hyper-FLUX 8-step", "Few-step LoRA, bf16"], "7": ["NVFP4 + Turbo-Alpha", "4-bit and 8 steps"]}, "seedView": ["0", "4", "7"], "speed": {"0": 20.910113100499757, "1": 15.872646055499956, "2": 11.894853831499859, "3": 8.689918992000003, "4": 4.242646256999933, "5": 7.056515414000046, "6": 7.077170572499881, "7": 2.7720974735000254}, "words": {"0": 51.48358585858586, "1": 51.16287878787879, "2": 51.16666666666667, "3": 51.35479797979798, "4": 50.05429292929293, "5": 50.765151515151516, "6": 50.71717171717172, "7": 50.95454545454545}, "div": {"0": 0.3583063394935043, "1": 0.3561822061586862, "2": 0.35680617296735845, "3": 0.3689724393565245, "4": 0.3473051135186796, "5": 0.3264008034961392, "6": 0.33542930919313274, "7": 0.3324596472460814}};
+const $ = (id) => document.getElementById(id);
+const fig = (src, cap, cls) => {
+  const f = document.createElement("figure"); if (cls) f.className = cls;
+  const i = document.createElement("img"); i.src = src; i.alt = cap.replace(/<[^>]+>/g, "");
+  const c = document.createElement("figcaption"); c.innerHTML = cap; f.append(i, c); return f;
+};
+const cache = {};
+let cur = 0;
+async function load(id) {
+  if (!cache[id]) {
+    const r = await fetch(`pairs/${id}.json`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    cache[id] = await r.json();
+  }
+  return cache[id];
+}
+async function showPair(k) {
+  cur = k;
+  const meta = D.pairs[k];
+  $("pairsel").value = meta.id;
+  $("prev").disabled = k === 0; $("next").disabled = k === D.pairs.length - 1;
+  $("count").textContent = `pair ${k + 1} of ${D.pairs.length}`;
+  [...$("chips").children].forEach(b => b.setAttribute("aria-pressed", b.dataset.id === meta.id ? "true" : "false"));
+  $("compare").classList.add("loading");
+  let p;
+  try { p = await load(meta.id); }
+  catch (e) { $("pairnote").textContent = `Could not load the images for ${meta.label} (${e.message}). Try another pair or reload.`; return; }
+  finally { $("compare").classList.remove("loading"); }
+  if (cur !== k) return;  // a newer pick arrived while this one loaded
+  $("inputs").replaceChildren(fig(p.in1, "<b>Input 1</b> (top-left)"), fig(p.in2, "<b>Input 2</b> (bottom-right)"));
+  $("grid").replaceChildren(...Object.keys(D.names).map(c => {
+    const s = D.speed[c], x = D.speed["0"] / s;
+    return fig(p.outs[c], `<b>${c} · ${D.names[c][0]}</b><br>${s.toFixed(2)} s · ${x.toFixed(1)}×<br>${p.words[c].toFixed(0)} words · diversity ${p.pdiv[c].toFixed(3)}`, c === "0" ? "base" : "");
+  }));
+  const why = meta.why ? ` · ${meta.why.toLowerCase()}${meta.why === "Typical pair" ? "" : " among these pairs for config 7"}` : "";
+  $("pairnote").textContent = `${meta.label} (${meta.cat})${why} · paper Fig. ${meta.figs.join(", ")}. Words: mean of two Gemini runs for the seed-1 image. Diversity: mean distance between this pair's four seeds.`;
+  $("seedrows").replaceChildren(...D.seedView.map(c => {
+    const row = document.createElement("div"); row.className = "seedrow";
+    const who = document.createElement("div"); who.className = "who";
+    who.innerHTML = `<b>${c} · ${D.names[c][0]}</b><span class="muted">this pair ${p.pdiv[c].toFixed(3)} · all pairs ${D.div[c].toFixed(3)}</span>`;
+    row.append(who);
+    p.seeds[c].forEach((src, j) => {
+      const img = document.createElement("img");
+      img.src = src || p.outs[c]; img.alt = `${D.names[c][0]}, seed ${j + 1}`; row.append(img);
+    });
+    return row;
+  }));
+}
+const groups = {};
+D.pairs.forEach((m, k) => { (groups[m.cat] ||= []).push([m, k]); });
+Object.keys(groups).sort().forEach(cat => {
+  const og = document.createElement("optgroup"); og.label = cat;
+  groups[cat].forEach(([m]) => { const o = document.createElement("option"); o.value = m.id;
+    o.textContent = m.label + (m.why && m.why !== "Typical pair" ? ` (${m.why.toLowerCase()})` : ""); og.append(o); });
+  $("pairsel").append(og);
+});
+const idx = Object.fromEntries(D.pairs.map((m, k) => [m.id, k]));
+$("pairsel").addEventListener("change", e => showPair(idx[e.target.value]));
+$("prev").addEventListener("click", () => cur > 0 && showPair(cur - 1));
+$("next").addEventListener("click", () => cur < D.pairs.length - 1 && showPair(cur + 1));
+D.showcase.forEach(id => {
+  const m = D.pairs[idx[id]];
+  const b = document.createElement("button"); b.className = "chip"; b.type = "button"; b.dataset.id = id; b.id = "chip-" + id;
+  b.innerHTML = `${m.label}<small>${m.why === "Typical pair" ? "" : m.why}</small>`;
+  b.addEventListener("click", () => showPair(idx[id])); $("chips").append(b);
+});
+showPair(idx[D.showcase[0]]);
+const tip = $("tip");
+document.querySelectorAll(".chart [data-tip]").forEach(el => {
+  el.addEventListener("mousemove", e => { tip.textContent = el.dataset.tip; tip.hidden = false;
+    tip.style.left = Math.min(e.clientX + 12, innerWidth - 290) + "px"; tip.style.top = (e.clientY + 14) + "px"; });
+  el.addEventListener("mouseleave", () => { tip.hidden = true; });
+});
+</script>

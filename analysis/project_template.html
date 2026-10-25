@@ -1,0 +1,137 @@
+<title>Inspiration Seeds, Faster</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="How much faster can Inspiration Seeds run before it stops being creative? Seven speedups measured on the paper's full benchmark.">
+{{SHARED_STYLE}}
+<style>
+.links { display: flex; flex-wrap: wrap; gap: 10px; }
+.links a { font: 600 0.9rem/1 var(--body); color: var(--ink); text-decoration: none; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; }
+.links a.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.links a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.teaser { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; align-items: end; }
+.teaser figure:nth-child(-n+2) img { aspect-ratio: auto; }
+@media (max-width: 760px) { .teaser { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.seedinputs { display: flex; gap: 10px; }
+.seedinputs img { width: 110px; aspect-ratio: 1; object-fit: cover; border-radius: 4px; }
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+.step { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.step b { font-weight: 600; }
+.step p { font-size: 0.92rem; color: var(--ink-2); }
+pre { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; margin: 0;
+  overflow-x: auto; font: 0.84rem/1.55 var(--mono); }
+a { color: var(--accent); }
+</style>
+
+<main>
+  <header style="display:flex;flex-direction:column;gap:14px">
+    <span class="eyebrow">Inspiration Seeds · FLUX.1 Kontext · speed vs creativity</span>
+    <h1>Inspiration Seeds, Faster</h1>
+    <p class="lede">How much faster can Inspiration Seeds run before it stops being creative? We ran eight configurations (the baseline and seven speedups) on one RTX PRO 6000, on the paper's full benchmark, and measured speed, how non-literal each blend is, and how different the four seeds of a pair stay.</p>
+    <div class="facts">
+      <div class="fact"><b class="num">2.4×</b><span>4-bit, no loss in creativity or diversity</span></div>
+      <div class="fact"><b class="num">4.9×</b><span>+ step caching, small cost</span></div>
+      <div class="fact"><b class="num">7.5×</b><span>+ 8-step LoRA, −7% seed diversity</span></div>
+      <div class="fact"><b class="num">3,168</b><span>images: 99 pairs × 4 seeds × 8 configs (baseline + 7 speedups)</span></div>
+    </div>
+    <div class="links">
+      <a class="primary" href="compare.html">Browse the paper's pairs</a>
+      <a href="https://github.com/eladerez/inspiration-seeds-fast">Code and results</a>
+      <a href="https://arxiv.org/abs/2602.08615">Inspiration Seeds paper</a>
+      <a href="https://github.com/kfirgoldberg/InspirationSeeds">Original code</a>
+    </div>
+  </header>
+
+  <section>
+    <div class="teaser">{{TEASER}}</div>
+    <p class="note">One benchmark pair, seed 1. Times are medians over 396 images on one RTX PRO 6000.</p>
+  </section>
+
+  <section>
+    <span class="eyebrow">The question</span>
+    <h2>Speedups exist. What do they cost a tool built for exploration?</h2>
+    <p><a href="https://arxiv.org/abs/2602.08615">Inspiration Seeds</a> (Goldberg, Richardson and Vinker) blends two images into a new object without a text prompt. It runs FLUX.1 Kontext [dev] with a LoRA, about 34 s per image on an L40S, and the paper names speed as a limitation. Quantization, step caching and few-step LoRAs all speed up FLUX, but they are usually judged on image quality. A tool for ideation also needs its blends to stay non-literal and its seeds to give different ideas, so that is what we measured.</p>
+    <div class="steps">
+      <div class="step"><b>Same benchmark as the paper</b><p>The public 99 pairs from 41 images, 4 seeds each, the paper's prompt, canvas and guidance. 396 images per configuration.</p></div>
+      <div class="step"><b>Creativity</b><p>The paper's metric: how many words Gemini needs to describe how to rebuild the output from its two inputs. Scored twice per configuration.</p></div>
+      <div class="step"><b>Diversity</b><p>Mean DreamSim distance between the 4 seeds of a pair. If a speedup makes seeds agree, you get fewer ideas per pair.</p></div>
+      <div class="step"><b>Paired statistics</b><p>Each configuration is compared with the baseline over the same 99 pairs, with 95% bootstrap intervals.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">Results</span>
+    <h2>Faster in every case; creativity holds, diversity is the cost</h2>
+    <div class="charts">
+      <div class="panel wide">
+        <h3>Seconds per image (median of 396)</h3>
+        <div class="legend"><span><i class="sq" style="background:var(--bar-base)"></i>baseline</span><span><i class="sq" style="background:var(--accent)"></i>RTX PRO 6000</span></div>
+        {{SPEED_CHART}}
+      </div>
+      <div class="panel">
+        <h3>Creativity: change in description length vs baseline (words)</h3>
+        <div class="legend"><span><i class="f"></i>95% interval excludes 0</span><span><i></i>no clear change</span></div>
+        {{WORDS_CHART}}
+        <p class="note">Baseline: 51.5 words. The largest drop is 1.4 words.</p>
+      </div>
+      <div class="panel">
+        <h3>Diversity: change in mean distance between seeds vs baseline</h3>
+        <div class="legend"><span><i class="f"></i>95% interval excludes 0</span><span><i></i>no clear change</span></div>
+        {{DIV_CHART}}
+        <p class="note">Baseline: 0.358 (DreamSim).</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">The cost you only see if you look</span>
+    <h2>Fewer steps, fewer different ideas</h2>
+    <p class="muted">Pair {{SEEDS_LABEL}}, seeds 1–4: the pair where the 8-step configuration lost the most diversity. The baseline's seeds give different blends; with 4-bit weights and an 8-step LoRA they converge. Across all 99 pairs the loss is 7%.</p>
+    <div class="seedinputs">{{SEEDS_INPUTS}}</div>
+    <div class="seeds">{{SEED_ROWS}}</div>
+  </section>
+
+  <section>
+    <span class="eyebrow">All results</span>
+    <h2>Every configuration</h2>
+    <div class="tw"><table>
+      <thead><tr><th>#</th><th>Configuration</th><th class="n">s/image</th><th class="n">Speedup</th><th class="n">Peak GB</th><th class="n">Words</th><th class="n">Copy / insert / split %</th><th class="n">Diversity</th><th class="n">Distance to baseline</th></tr></thead>
+      <tbody>{{TABLE_ROWS}}</tbody>
+    </table></div>
+    <p class="note">Highlighted: recommended configurations. All configs on one RTX PRO 6000 (Blackwell). Words: mean of two Gemini runs. Distance to baseline: DreamSim to the baseline's image for the same pair and seed; two different baseline seeds are 0.358 apart.</p>
+  </section>
+
+  <section>
+    <span class="eyebrow">Takeaways</span>
+    <h2>What to use</h2>
+    <ul class="plain">
+      <li><b>Same output, faster: 4-bit NVFP4 (2.4×).</b> No loss in creativity or diversity (seed diversity even rose 3%); images stay close to the baseline's.</li>
+      <li><b>Much faster, nearly the same: NVFP4 + step caching (4.9×).</b> −2.8% description length and −3% diversity, both real but small.</li>
+      <li><b>Fastest: NVFP4 + 8-step Turbo-Alpha LoRA (7.5×).</b> Blends stay as non-literal, seed diversity drops 7%.</li>
+    </ul>
+    <p class="note">The paper's ~34 s per image was measured on an L40S, a different GPU: compare our speedups with our own baseline (20.91 s on the RTX PRO 6000), not with the paper's time. Limits: Gemini 3.8 Flash scored creativity because the paper's Gemini 2.5 Flash is closed to new users, so word counts compare with our own baseline (51.5) rather than the paper's 54.8. The copy/insertion/split rule is our own. No human study. One model and one benchmark. Cloud cost of these runs: ${{COST}}.</p>
+  </section>
+
+  <section>
+    <span class="eyebrow">Run it</span>
+    <h2>Faster generate.py</h2>
+    <p>A drop-in for the original script with the measured presets (<code>nvfp4</code>, <code>nvfp4-cache</code>, <code>nvfp4-turbo</code>; Blackwell GPUs). FLUX.1 Kontext [dev] is non-commercial: accept its license on Hugging Face and set <code>HF_TOKEN</code>.</p>
+    <pre>uv run --group gen --group nunchaku generate_fast.py \
+    --image1 a.jpg --image2 b.jpg --preset nvfp4-cache</pre>
+    <p class="note">The benchmark harness, Google Cloud scripts, scoring and every result file are in the repository.</p>
+  </section>
+
+  <section>
+    <span class="eyebrow">Credits</span>
+    <p class="muted">Inspiration Seeds by Kfir Goldberg, Elad Richardson and Yael Vinker (<a href="https://arxiv.org/abs/2602.08615">arXiv 2602.08615</a>, MIT code). FLUX.1 Kontext [dev] by Black Forest Labs (non-commercial license). 4-bit kernels from <a href="https://github.com/nunchaku-tech/nunchaku">Nunchaku</a> (SVDQuant). FLUX.1 Turbo-Alpha by Alimama Creative, Hyper-FLUX by ByteDance. DreamSim by Fu et al. This is an independent research benchmark.</p>
+  </section>
+</main>
+<div id="tip" hidden></div>
+<script>
+const tip = document.getElementById("tip");
+document.querySelectorAll(".chart [data-tip]").forEach(el => {
+  el.addEventListener("mousemove", e => { tip.textContent = el.dataset.tip; tip.hidden = false;
+    tip.style.left = Math.min(e.clientX + 12, innerWidth - 290) + "px"; tip.style.top = (e.clientY + 14) + "px"; });
+  el.addEventListener("mouseleave", () => { tip.hidden = true; });
+});
+</script>

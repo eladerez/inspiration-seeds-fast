@@ -1,0 +1,15 @@
+id: 0
+name: baseline
+description: Original generate.py settings, bf16, pipeline default steps (28), guidance 4.0, T5 + CLIP encode the prompt every image.
+machine: g4-standard-48
+model: black-forest-labs/FLUX.1-Kontext-dev
+revision: 24e9dedc4ef646698dc8eb4e18ae2cec3c9fea0d
+dtype: bfloat16
+guidance_scale: 4.0
+seeds: [1, 2, 3, 4]
+backend: diffusers
+num_inference_steps: null   # null = the pipeline default, as upstream generate.py
+text_embedding: encode
+compile: null
+loras:
+  - {path: InspirationSeedsPaper/InspirationSeeds, weight_name: inspiration_seeds.safetensors, weight: 1.0}

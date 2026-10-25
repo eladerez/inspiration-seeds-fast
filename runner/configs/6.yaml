@@ -1,0 +1,16 @@
+id: 6
+name: hyper-flux-8step
+description: Hyper FLUX.1-dev 8-step LoRA (scale 0.125, as its model card recommends) stacked with the Inspiration Seeds LoRA (fast/lora_stack.py, Elad), 8 steps, cached prompt embedding, bf16.
+machine: g4-standard-48
+model: black-forest-labs/FLUX.1-Kontext-dev
+revision: 24e9dedc4ef646698dc8eb4e18ae2cec3c9fea0d
+dtype: bfloat16
+guidance_scale: 4.0
+seeds: [1, 2, 3, 4]
+backend: diffusers
+num_inference_steps: 8
+text_embedding: cached
+compile: null
+loras:
+  - {path: InspirationSeedsPaper/InspirationSeeds, weight_name: inspiration_seeds.safetensors, weight: 1.0}
+  - {path: ByteDance/Hyper-SD, weight_name: Hyper-FLUX.1-dev-8steps-lora.safetensors, weight: 0.125}

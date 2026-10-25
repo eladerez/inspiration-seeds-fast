@@ -1,0 +1,15 @@
+id: 1
+name: cached-text-compile
+description: Config 0 + the fixed prompt embedding loaded from cache/ (CLIP and T5 never loaded) + torch.compile on the transformer.
+machine: g4-standard-48
+model: black-forest-labs/FLUX.1-Kontext-dev
+revision: 24e9dedc4ef646698dc8eb4e18ae2cec3c9fea0d
+dtype: bfloat16
+guidance_scale: 4.0
+seeds: [1, 2, 3, 4]
+backend: diffusers
+num_inference_steps: null
+text_embedding: cached
+compile: {mode: max-autotune-no-cudagraphs, fullgraph: false}
+loras:
+  - {path: InspirationSeedsPaper/InspirationSeeds, weight_name: inspiration_seeds.safetensors, weight: 1.0}

@@ -1,0 +1,110 @@
+{
+ "002_arch3_x_food2": [
+  25
+ ],
+ "003_arch2_x_food2": [
+  21,
+  24
+ ],
+ "004_arch6_x_nature2": [
+  25
+ ],
+ "008_arch2_x_sea9": [
+  24
+ ],
+ "009_fashion5_x_food1": [
+  1,
+  21,
+  26
+ ],
+ "011_fashion6_x_nature7": [
+  3,
+  26
+ ],
+ "013_fashion5_x_other3": [
+  9,
+  22
+ ],
+ "015_fashion6_x_sea7": [
+  10,
+  22
+ ],
+ "017_food2_x_nature4": [
+  27
+ ],
+ "019_food1_x_other1": [
+  27
+ ],
+ "022_food5_x_sea5": [
+  28
+ ],
+ "031_fashion4_x_arch4": [
+  6,
+  21,
+  22,
+  26
+ ],
+ "032_food6_x_nature8": [
+  9,
+  21,
+  28
+ ],
+ "034_sea1_x_food3": [
+  23
+ ],
+ "038_arch2_x_nature3": [
+  24
+ ],
+ "039_fashion3_x_nature6": [
+  21,
+  25
+ ],
+ "046_food1_x_nature2": [
+  1,
+  21,
+  27
+ ],
+ "052_food1_x_sea4": [
+  1,
+  23
+ ],
+ "056_fashion4_x_food6": [
+  26
+ ],
+ "057_other1_x_sea3": [
+  9
+ ],
+ "058_arch7_x_sea8": [
+  21,
+  25
+ ],
+ "059_arch2_x_nature5": [
+  6,
+  24
+ ],
+ "069_food4_x_other2": [
+  21,
+  23,
+  27
+ ],
+ "076_food4_x_sea9": [
+  21,
+  28
+ ],
+ "080_nature3_x_sea3": [
+  23
+ ],
+ "082_nature3_x_sea7": [
+  21,
+  28
+ ],
+ "087_arch1_x_food1": [
+  1
+ ],
+ "088_food2_x_sea9": [
+  6
+ ],
+ "089_arch4_x_food2": [
+  22
+ ]
+}
